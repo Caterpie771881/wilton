@@ -561,3 +561,87 @@ pre.hastips {
     }
 }
 /* ========== for RWD end ========== */
+
+/* ========== for markdown-alert start ========== */
+.markdown-alert {
+    padding-left: 0.5rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-left: 0.25em solid;
+}
+
+.markdown-alert-title,
+.markdown-alert > p:not(.markdown-alert-title)::before {
+    font-weight: bold;
+}
+
+/* Note */
+.markdown-alert-note {
+    border-left-color: var(--wilton-color-blue);
+    background-color: color-mix(
+        in srgb,
+        var(--wilton-color-blue),
+        var(--wilton-color-black) 85%
+    );
+}
+.markdown-alert-note .markdown-alert-title,
+.markdown-alert-note > p:not(.markdown-alert-title)::before {
+    color: var(--wilton-color-blue);
+}
+
+/* Important */
+.markdown-alert-important {
+    border-left-color: var(--wilton-color-purple);
+    background-color: color-mix(
+        in srgb,
+        var(--wilton-color-purple),
+        var(--wilton-color-black) 85%
+    );
+}
+.markdown-alert-important .markdown-alert-title,
+.markdown-alert-important > p:not(.markdown-alert-title)::before {
+    color: var(--wilton-color-purple);
+}
+
+/* Warning */
+.markdown-alert-warning {
+    border-left-color: var(--wilton-color-orange);
+    background-color: color-mix(
+        in srgb,
+        var(--wilton-color-orange),
+        var(--wilton-color-black) 85%
+    );
+}
+.markdown-alert-warning .markdown-alert-title,
+.markdown-alert-warning > p:not(.markdown-alert-title)::before {
+    color: var(--wilton-color-orange);
+}
+
+/* Tip */
+.markdown-alert-tip {
+    border-left-color: var(--wilton-color-green);
+    background-color: color-mix(
+        in srgb,
+        var(--wilton-color-green),
+        var(--wilton-color-black) 85%
+    );
+}
+.markdown-alert-tip .markdown-alert-title,
+.markdown-alert-tip > p:not(.markdown-alert-title)::before {
+    color: var(--wilton-color-green);
+}
+
+/* Caution */
+.markdown-alert-caution {
+    border-left-color: var(--wilton-color-red);
+    background-color: color-mix(
+        in srgb,
+        var(--wilton-color-red),
+        var(--wilton-color-black) 85%
+    );
+}
+.markdown-alert-caution .markdown-alert-title,
+.markdown-alert-caution > p:not(.markdown-alert-title)::before {
+    color: var(--wilton-color-red);
+}
+/* ========== for markdown-alert end ========== */

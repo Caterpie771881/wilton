@@ -10,7 +10,6 @@ from typing import Literal, Sequence
 from mako.lookup import TemplateLookup
 from markdown_it import MarkdownIt
 from mdit_py_plugins.footnote import footnote_plugin
-from mdit_py_plugins.tasklists import tasklists_plugin
 from mdit_py_plugins.texmath import texmath_plugin
 from pydantic import BaseModel, TypeAdapter
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, desc, select
@@ -160,15 +159,22 @@ post_list_template = tempaltes.get_template("post_list.mako")
 page_template = tempaltes.get_template("page.mako")
 
 markdown_compiler = (
-    MarkdownIt("commonmark", {"breaks": True, "html": True})
+    MarkdownIt(
+        "commonmark",
+        {
+            "breaks": False,
+            "html": True,
+            "tasklists": True,
+            "alerts": True,
+        },
+    )
+    .enable("table")
+    .enable("strikethrough")
     .use(front_matter_plugin)
     .use(footnote_plugin)
     .use(texmath_plugin)
     .use(mark_plugin)
-    .use(tasklists_plugin)
     .use(table_container_plugin)
-    .enable("table")
-    .enable("strikethrough")
 )
 
 logging.info("正在加载站点配置")
