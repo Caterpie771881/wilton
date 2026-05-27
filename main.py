@@ -15,7 +15,7 @@ from mdit_py_plugins.texmath import texmath_plugin
 from pydantic import BaseModel, TypeAdapter
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, desc, select
 
-from mdit_plugins import front_matter_plugin, mark_plugin
+from mdit_plugins import front_matter_plugin, mark_plugin, table_container_plugin
 
 db = create_engine("sqlite:///:memory:")
 
@@ -166,6 +166,7 @@ markdown_compiler = (
     .use(texmath_plugin)
     .use(mark_plugin)
     .use(tasklists_plugin)
+    .use(table_container_plugin)
     .enable("table")
     .enable("strikethrough")
 )

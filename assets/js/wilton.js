@@ -54,12 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
         console.warn(`[wilton] 目录未创建, 原因: ${e}`);
     }
-
-    try {
-        wrapTables(document.getElementById("mainbar"));
-    } catch (e) {
-        console.warn(`[wilton] table-container 未启用, 原因: ${e}`);
-    }
 });
 
 /**
@@ -184,26 +178,4 @@ function genCatalogue(elem) {
         });
     });
     return catalogue;
-}
-
-/**
- * 扫描指定元素中的所有 table, 为其包裹上 `<div class="table-container">...</div>`
- * @param {HTMLElement} elm
- */
-function wrapTables(elm) {
-    const tables = elm.querySelectorAll("table");
-
-    tables.forEach((table) => {
-        if (
-            table.parentElement &&
-            table.parentElement.classList.contains("table-container")
-        ) {
-            return;
-        }
-        const container = document.createElement("div");
-        container.className = "table-container";
-
-        table.parentNode.insertBefore(container, table);
-        container.appendChild(table);
-    });
 }
