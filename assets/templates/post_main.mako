@@ -4,14 +4,14 @@
         <div>
             <a class="link-style2" href="${config.website_address}${post.category.link}">${post.category.name}</a>
             % for tag in post.tags:
-            <a class="tag" href="${tag.link}">${tag.name}</a>
+            <a class="tag" href="${config.website_address}${tag.link}">${tag.name}</a>
             % endfor
         </div>
         <blockquote>
             <p>Post on ${post.date.strftime("%Y-%m-%d")} | views: <span>loading...</span> | comment: <span>loading...</span></p>
         </blockquote>
     </div>
-    <div class="post-content render-latex">
+    <div class="post-content">
         ${post.content}
     </div>
 </div>

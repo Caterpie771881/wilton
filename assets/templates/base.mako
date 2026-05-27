@@ -16,7 +16,6 @@
     % endif
     % if latex:
     <script defer src="/js/katex.min.js"></script>
-    <script defer src="/js/auto-render.min.js"></script>
     % endif
     % if image:
     <script defer src="/js/fancybox.umd.js"></script>
