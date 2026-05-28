@@ -119,7 +119,7 @@ class Category(SQLModel, table=True):
 
     @cached_property
     def link(self) -> str:
-        return f"/posts/{self.name}/"
+        return f"/posts/{self.name}/_/post_list_1.html"
 
 
 class Tag(SQLModel, table=True):
@@ -373,31 +373,52 @@ with Session(db) as session:
         .render(
             config=site_config,
             posts=session.exec(select(Post).order_by(desc(Post.date))).fetchmany(3),
-            categories=session.exec(select(Category).order_by(Category.name)).all(),
+            categories=session.exec(
+                select(Category).where(Category.posts.any()).order_by(Category.name)
+            ).all(),
             tags=session.exec(select(Tag).order_by(Tag.name)).all(),
         )
         .lstrip()
     )
 
 logger.info("正在生成文章分类展示页")
-# TODO: 生成 posts/<category>/index.html 用于展示当前类别下的所有文章
-# 分页要怎么做
+
 with Session(db) as session:
-    categories = session.exec(select(Category)).all()
+    categories = session.exec(select(Category).where(Category.posts.any())).all()
     for category in categories:
         (output_path / "posts" / category.name).mkdir(exist_ok=True)
-        gen_page(
-            filepath=output_path / "posts" / category.name / "index.html",
-            sub_title=category.name,
-            main=post_list_template.render(
-                title=f"Category: {category.name}",
-                posts=category.posts,
-                total_pages=1,
-                current_page=1,
-                config=site_config,
-                sidebar=sidebar,
-            ),
+        (output_path / "posts" / category.name / "_").mkdir(exist_ok=True)
+
+        posts = category.posts
+        total_post = len(posts)
+
+        page_size = site_config.index.max_posts
+        total_page = ceil(total_post / page_size)
+
+        for page in range(1, total_page + 1):
+            offset = (page - 1) * page_size
+
+            gen_page(
+                filepath=output_path
+                / "posts"
+                / category.name
+                / "_"
+                / f"post_list_{page}.html",
+                sub_title=category.name,
+                main=post_list_template.render(
+                    title=f"Category: {category.name}",
+                    posts=posts[offset : offset + page_size],
+                    total_page=total_page,
+                    current_page=page,
+                    config=site_config,
+                    sidebar=sidebar,
+                ),
+            )
+
+        (output_path / "posts" / category.name / "index.html").write_text(
+            '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Redirecting...</title></head><body><script>window.location.replace("_/post_list_1.html");</script></body></html>'
         )
+
 
 logger.info("正在生成文章标签展示页")
 
@@ -420,7 +441,7 @@ with Session(db) as session:
                 main=post_list_template.render(
                     title=f"Tag: {tag.name}",
                     posts=posts[offset : offset + page_size],
-                    total_pages=total_page,
+                    total_page=total_page,
                     current_page=page,
                     config=site_config,
                     sidebar=sidebar,
@@ -475,7 +496,7 @@ for page in range(1, total_page + 1):
             main=post_list_template.render(
                 title="我的文章",
                 posts=posts,
-                total_pages=total_page,
+                total_page=total_page,
                 current_page=page,
                 config=site_config,
                 sidebar=sidebar,

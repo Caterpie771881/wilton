@@ -1,5 +1,5 @@
 <%def name="make_pagination(total, current)">
-    <div class="pagination">
+    <div class="pagination" ${'style="display: none"' if total == 1 else ''}>
         <% left = max(1, current-2) %><% right = min(total, left + 3) + 1 %>
         % if left > 1:
         <a href="post_list_1.html">&lt;&lt;</a>
@@ -34,7 +34,7 @@
         </blockquote>
     </div>
     % endfor
-    ${make_pagination(total_pages, current_page)}
+    ${make_pagination(total_page, current_page)}
 </div>
 
 ${sidebar}
