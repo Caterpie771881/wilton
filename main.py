@@ -4,6 +4,7 @@ import tomllib
 from datetime import datetime
 from functools import cached_property
 from html.parser import HTMLParser
+from math import ceil
 from pathlib import Path
 from typing import Literal, Sequence
 
@@ -12,7 +13,16 @@ from markdown_it import MarkdownIt
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.texmath import texmath_plugin
 from pydantic import BaseModel, TypeAdapter
-from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, desc, select
+from sqlmodel import (
+    Field,
+    Relationship,
+    Session,
+    SQLModel,
+    create_engine,
+    desc,
+    func,
+    select,
+)
 
 from mdit_plugins import front_matter_plugin, mark_plugin, table_container_plugin
 
@@ -152,6 +162,11 @@ pages_path = input_path / "pages"
 posts_path = input_path / "posts"
 
 output_path = Path("test-dist")
+for f in output_path.iterdir():
+    if f.is_file():
+        f.unlink()
+    elif f.is_dir():
+        shutil.rmtree(f)
 
 assets_path = Path("assets")
 tempaltes = TemplateLookup(
@@ -344,7 +359,7 @@ for category_dir in (input_path / "posts").iterdir():
                 session.commit()
                 session.refresh(post)
 
-            # TODO: 完成 Tag 和 Post 的链接
+            # 完成 Tag 和 Post 的链接
             with Session(db) as session:
                 for tag in tags:
                     session.add(PostTagLink(post_id=post.id, tag_id=tag.id))
@@ -385,24 +400,38 @@ with Session(db) as session:
         )
 
 logger.info("正在生成文章标签展示页")
-# TODO: 生成 tags/<tag>.html 用于展示当前标签下的文章
-# 分页要怎么做
+
 with Session(db) as session:
     tags = session.exec(select(Tag)).all()
     for tag in tags:
         (output_path / "tags" / tag.name).mkdir(exist_ok=True)
-        gen_page(
-            filepath=output_path / "tags" / tag.name / "index.html",
-            sub_title=tag.name,
-            main=post_list_template.render(
-                title=f"Tag: {tag.name}",
-                posts=tag.posts,
-                total_pages=1,
-                current_page=1,
-                config=site_config,
-                sidebar=sidebar,
-            ),
+
+        posts = tag.posts
+        total_post = len(posts)
+        page_size = site_config.index.max_posts
+        total_page = ceil(total_post / page_size)
+
+        for page in range(1, total_page + 1):
+            offset = (page - 1) * page_size
+
+            gen_page(
+                filepath=output_path / "tags" / tag.name / f"post_list_{page}.html",
+                sub_title=tag.name,
+                main=post_list_template.render(
+                    title=f"Tag: {tag.name}",
+                    posts=posts[offset : offset + page_size],
+                    total_pages=total_page,
+                    current_page=page,
+                    config=site_config,
+                    sidebar=sidebar,
+                ),
+            )
+
+        shutil.copyfile(
+            output_path / "tags" / tag.name / "post_list_1.html",
+            output_path / "tags" / tag.name / "index.html",
         )
+
 
 logger.info("正在生成所有文章")
 with Session(db) as session:
@@ -427,25 +456,35 @@ logger.info("正在编译静态索引")
 
 logger.info("正在生成文章列表")
 
-# TODO
-# ATTENTION: 要思考一下如果一篇文章都没有该怎么办
+# FIXME: 要思考一下如果一篇文章都没有该怎么办
 with Session(db) as session:
-    posts = session.exec(select(Post).order_by(desc(Post.date))).all()
-    gen_page(
-        filepath=output_path / "index.html",
-        main=post_list_template.render(
-            title="我的文章",
-            posts=posts,
-            total_pages=1,
-            current_page=1,
-            config=site_config,
-            sidebar=sidebar,
-        ),
-    )
+    total_post = session.exec(select(func.count()).select_from(Post)).one()
+
+page_size = site_config.index.max_posts
+total_page = ceil(total_post / page_size)
+
+for page in range(1, total_page + 1):
+    offset = (page - 1) * page_size
+    query_post = select(Post).order_by(desc(Post.date)).offset(offset).limit(page_size)
+
+    with Session(db) as session:
+        posts = session.exec(query_post).all()
+
+        gen_page(
+            filepath=output_path / f"post_list_{page}.html",
+            main=post_list_template.render(
+                title="我的文章",
+                posts=posts,
+                total_pages=total_page,
+                current_page=page,
+                config=site_config,
+                sidebar=sidebar,
+            ),
+        )
 
 logger.info("正在生成主页")
 
-# TODO: 其实就是把文章列表的第一页复制为 webroot/index.html
+shutil.copyfile(output_path / "post_list_1.html", output_path / "index.html")
 
 if friends:
     logger.info("正在生成友情链接页面")

@@ -1,13 +1,19 @@
 <%def name="make_pagination(total, current)">
     <div class="pagination">
-        % if current > 1:
-        <a href="page_list_${current-1}.html">&lt;&lt;</a>
+        <% left = max(1, current-2) %><% right = min(total, left + 3) + 1 %>
+        % if left > 1:
+        <a href="post_list_1.html">&lt;&lt;</a>
+        ...
         % endif
-        % for i in range(1,6):
-        <a href="page_list_${i}.html" ${'class="current-page"' if current == i else ''}>${i}</a>
+        % for i in range(left, right):
+        <a href="post_list_${i}.html" ${'class="current-page"' if current == i else ''}>${i}</a>
+        % if i < right - 1:
+        |
+        % endif
         % endfor
-        % if current < total:
-        <a href="page_list_${current+1}.html">&gt;&gt;</a>
+        % if right < total + 1:
+        ...
+        <a href="post_list_${total}.html">&gt;&gt;</a>
         % endif
     </div>
 </%def>
