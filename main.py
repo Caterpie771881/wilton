@@ -374,7 +374,9 @@ with Session(db) as session:
             config=site_config,
             posts=session.exec(select(Post).order_by(desc(Post.date))).fetchmany(3),
             categories=session.exec(
-                select(Category).where(Category.posts.any()).order_by(Category.name)
+                select(Category)
+                .where(select(Post).where(Post.category_id == Category.id).exists())
+                .order_by(Category.name)
             ).all(),
             tags=session.exec(select(Tag).order_by(Tag.name)).all(),
         )
@@ -384,7 +386,11 @@ with Session(db) as session:
 logger.info("正在生成文章分类展示页")
 
 with Session(db) as session:
-    categories = session.exec(select(Category).where(Category.posts.any())).all()
+    categories = session.exec(
+        select(Category).where(
+            select(Post).where(Post.category_id == Category.id).exists()
+        )
+    ).all()
     for category in categories:
         (output_path / "posts" / category.name).mkdir(exist_ok=True)
         (output_path / "posts" / category.name / "_").mkdir(exist_ok=True)
@@ -471,7 +477,7 @@ with Session(db) as session:
         )
 
 
-logger.info("正在编译静态索引")
+logger.warning("编译静态索引, 未实现")
 
 # TODO
 
@@ -528,6 +534,8 @@ for page in pages:
         codeblock_enable=True,
     )
 
-logger.info("正在生成网站地图")
+logger.warning("生成网站地图, 未实现")
 
 # TODO
+
+# 其他 TODO: 访问量统计和评论区
