@@ -16,8 +16,6 @@ from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, desc
 
 from mdit_plugins import front_matter_plugin, mark_plugin, table_container_plugin
 
-db = create_engine("sqlite:///:memory:")
-
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -65,9 +63,9 @@ type FriendsConfig = dict[str, list[FriendInfo]]
 
 
 class PostMeta(BaseModel):
-    title: str | None
+    title: str | None = None
     post_date: datetime
-    tags: list[str]
+    tags: list[str] = []
 
 
 class PostTagLink(SQLModel, table=True):
@@ -126,7 +124,7 @@ class Tag(SQLModel, table=True):
 
 
 class PageMeta(BaseModel):
-    title: str | None
+    title: str | None = None
 
 
 class Page(BaseModel):
@@ -135,10 +133,18 @@ class Page(BaseModel):
     content: str
 
 
+db = create_engine("sqlite:///:memory:")
+
 SQLModel.metadata.create_all(db)
 
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
 
-logging.root.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - [%(levelname)s] %(message)s")
+console_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
 
 input_path = Path("input")
 configs_path = input_path / "configs"
@@ -177,7 +183,7 @@ markdown_compiler = (
     .use(table_container_plugin)
 )
 
-logging.info("正在加载站点配置")
+logger.info("正在加载站点配置")
 site_config = SiteConfig.model_validate(
     tomllib.load(open(configs_path / "site.toml", "rb"))
 )
@@ -186,7 +192,7 @@ navbar_links = [Link(href=site_config.website_address, name="我的文章")]
 
 friends: FriendsConfig | None = None
 if (configs_path / "friends.toml").exists():
-    logging.info("检测到友情链接配置, 将生成友情链接页面")
+    logger.info("检测到友情链接配置, 将生成友情链接页面")
     friends = TypeAdapter(FriendsConfig).validate_python(
         tomllib.load(open(configs_path / "friends.toml", "rb"))
     )
@@ -195,7 +201,7 @@ if (configs_path / "friends.toml").exists():
     )
 
 
-logging.info("正在扫描与编译自定义页面")
+logger.info("正在扫描与编译自定义页面")
 
 pages: list[Page] = []
 for page_file in (input_path / "pages").iterdir():
@@ -222,7 +228,7 @@ for page_file in (input_path / "pages").iterdir():
         )
 
 
-logging.info("正在创建导航栏与底部栏")
+logger.info("正在创建导航栏与底部栏")
 
 navbar = tempaltes.get_template("navbar.mako").render(
     title=site_config.title.main,
@@ -270,7 +276,7 @@ def gen_page(
         f.write(content)
 
 
-logging.info("正在导入主题文件")
+logger.info("正在导入主题文件")
 
 shutil.copytree(
     src=assets_path / "css",
@@ -292,7 +298,7 @@ shutil.copyfile(
     dst=output_path / "favicon.ico",
 )
 
-logging.info("正在扫描与编译文章")
+logger.info("正在扫描与编译文章")
 
 (output_path / "posts").mkdir(exist_ok=True)
 
@@ -344,7 +350,7 @@ for category_dir in (input_path / "posts").iterdir():
                     session.add(PostTagLink(post_id=post.id, tag_id=tag.id))
                 session.commit()
 
-logging.info("正在生成侧边栏")
+logger.info("正在生成侧边栏")
 
 with Session(db) as session:
     sidebar = (
@@ -352,13 +358,13 @@ with Session(db) as session:
         .render(
             config=site_config,
             posts=session.exec(select(Post).order_by(desc(Post.date))).fetchmany(3),
-            categories=session.exec(select(Category)).all(),
-            tags=session.exec(select(Tag)).all(),
+            categories=session.exec(select(Category).order_by(Category.name)).all(),
+            tags=session.exec(select(Tag).order_by(Tag.name)).all(),
         )
         .lstrip()
     )
 
-logging.info("正在生成文章分类展示页")
+logger.info("正在生成文章分类展示页")
 # TODO: 生成 posts/<category>/index.html 用于展示当前类别下的所有文章
 # 分页要怎么做
 with Session(db) as session:
@@ -378,7 +384,7 @@ with Session(db) as session:
             ),
         )
 
-logging.info("正在生成文章标签展示页")
+logger.info("正在生成文章标签展示页")
 # TODO: 生成 tags/<tag>.html 用于展示当前标签下的文章
 # 分页要怎么做
 with Session(db) as session:
@@ -398,7 +404,7 @@ with Session(db) as session:
             ),
         )
 
-logging.info("正在生成所有文章")
+logger.info("正在生成所有文章")
 with Session(db) as session:
     posts = session.exec(select(Post)).all()
     for post in posts:
@@ -415,11 +421,11 @@ with Session(db) as session:
         )
 
 
-logging.info("正在编译静态索引")
+logger.info("正在编译静态索引")
 
 # TODO
 
-logging.info("正在生成文章列表")
+logger.info("正在生成文章列表")
 
 # TODO
 # ATTENTION: 要思考一下如果一篇文章都没有该怎么办
@@ -437,19 +443,19 @@ with Session(db) as session:
         ),
     )
 
-logging.info("正在生成主页")
+logger.info("正在生成主页")
 
 # TODO: 其实就是把文章列表的第一页复制为 webroot/index.html
 
 if friends:
-    logging.info("正在生成友情链接页面")
+    logger.info("正在生成友情链接页面")
     gen_page(
         filepath=output_path / "friends.html",
         sub_title="友情链接",
         main=tempaltes.get_template("friends.mako").render(config=friends),
     )
 
-logging.info("正在生成自定义页面")
+logger.info("正在生成自定义页面")
 
 for page in pages:
     gen_page(
@@ -462,6 +468,6 @@ for page in pages:
         codeblock_enable=True,
     )
 
-logging.info("正在生成网站地图")
+logger.info("正在生成网站地图")
 
 # TODO
