@@ -22,7 +22,7 @@
     <h1>${title}</h1>
     % for post in posts:
     <div class="post-card">
-        <a href="${config.website_address}${post.link}"><h2>${post.title}</h2></a>
+        <a href="${website_address}${post.link}"><h2>${post.title}</h2></a>
         <a class="link-style2" href="${post.category.link}">${post.category.name}</a>
         <div>${post.intro}</div>
         <blockquote>

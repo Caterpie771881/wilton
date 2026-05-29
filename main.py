@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import shutil
 import tomllib
@@ -12,6 +13,7 @@ from mako.lookup import TemplateLookup
 from markdown_it import MarkdownIt
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.texmath import texmath_plugin
+from pagefind.index import IndexConfig, PagefindIndex
 from pydantic import BaseModel, TypeAdapter
 from sqlmodel import (
     Field,
@@ -142,6 +144,33 @@ class Page(BaseModel):
     filename: str
     content: str
 
+    @cached_property
+    def link(self) -> str:
+        return (Path("/") / self.filename).with_suffix(".html").as_posix()
+
+
+async def build_index(directory: str | Path, output: str | Path, website_address: str):
+    """扫描目录，排除指定文件，生成索引"""
+
+    html_files = Path(directory).glob("**/posts/*/*.html")
+    html_files = [f for f in html_files if f.name != "index.html"]
+
+    if not html_files:
+        return
+
+    config = IndexConfig(output_path=str(output), verbose=False)
+
+    async with PagefindIndex(config=config) as index:
+        for filepath in html_files:
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            url = website_address + "/" + filepath.relative_to(directory).as_posix()
+
+            await index.add_html_file(
+                content=content, url=url, source_path=str(filepath)
+            )
+
 
 db = create_engine("sqlite:///:memory:")
 
@@ -235,9 +264,7 @@ for page_file in (input_path / "pages").iterdir():
         pages.append(page)
         navbar_links.append(
             Link(
-                href=site_config.website_address
-                + "/"
-                + page_file.with_suffix(".html").name,
+                href=site_config.website_address + page.link,
                 name=page.title,
             )
         )
@@ -276,7 +303,7 @@ def gen_page(
         codeblock_enable=codeblock_enable,
         latex_enable=latex_enable,
         image_enable=image_enable,
-        config=site_config,
+        website_address=site_config.website_address,
     ).lstrip()
 
     mode: Literal["w", "wb"]
@@ -371,7 +398,7 @@ with Session(db) as session:
     sidebar = (
         tempaltes.get_template("sidebar.mako")
         .render(
-            config=site_config,
+            website_address=site_config.website_address,
             posts=session.exec(select(Post).order_by(desc(Post.date))).fetchmany(3),
             categories=session.exec(
                 select(Category)
@@ -416,7 +443,7 @@ with Session(db) as session:
                     posts=posts[offset : offset + page_size],
                     total_page=total_page,
                     current_page=page,
-                    config=site_config,
+                    website_address=site_config.website_address,
                     sidebar=sidebar,
                 ),
             )
@@ -449,7 +476,7 @@ with Session(db) as session:
                     posts=posts[offset : offset + page_size],
                     total_page=total_page,
                     current_page=page,
-                    config=site_config,
+                    website_address=site_config.website_address,
                     sidebar=sidebar,
                 ),
             )
@@ -470,16 +497,31 @@ with Session(db) as session:
             ).with_suffix(".html"),
             title=post.title,
             sub_title=None,
-            main=post_template.render(post=post, config=site_config),
+            main=post_template.render(
+                post=post, website_address=site_config.website_address
+            ),
             codeblock_enable=True,
             latex_enable=True,
             image_enable=True,
         )
 
 
-logger.warning("编译静态索引, 未实现")
+logger.info("正在编译静态索引")
 
-# TODO
+asyncio.run(
+    build_index(output_path, output_path / "pagefind", site_config.website_address)
+)
+
+search_page = tempaltes.get_template("search.mako").render(
+    navbar=navbar,
+    sidebar=sidebar,
+    footer=footer,
+    website_address=site_config.website_address,
+)
+if isinstance(search_page, str):
+    (output_path / "search.html").write_text(search_page)
+elif isinstance(search_page, bytes):
+    (output_path / "search.html").write_bytes(search_page)
 
 logger.info("正在生成文章列表")
 
@@ -504,7 +546,7 @@ for page in range(1, total_page + 1):
                 posts=posts,
                 total_page=total_page,
                 current_page=page,
-                config=site_config,
+                website_address=site_config.website_address,
                 sidebar=sidebar,
             ),
         )
@@ -534,8 +576,16 @@ for page in pages:
         codeblock_enable=True,
     )
 
-logger.warning("生成网站地图, 未实现")
+logger.info("正在生成网站地图")
 
-# TODO
+with Session(db) as session:
+    posts = session.exec(select(Post)).all()
+    sitemap_page = tempaltes.get_template("sitemap.mako").render(
+        website_address=site_config.website_address, posts=posts, pages=pages
+    )
+if isinstance(sitemap_page, str):
+    (output_path / "sitemap.xml").write_text(sitemap_page)
+elif isinstance(sitemap_page, bytes):
+    (output_path / "sitemap.xml").write_bytes(sitemap_page)
 
-# 其他 TODO: 访问量统计和评论区
+# 其他 TODO: 访问量统计 评论区 图片

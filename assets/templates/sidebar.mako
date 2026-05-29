@@ -1,5 +1,5 @@
 <%def name="make_search_box()">
-    <div>
+    <div class="search-box">
         搜索: <input class="search" type="text" />
         <button class="button-style1">Go!</button>
     </div>
@@ -13,7 +13,7 @@
             <li>
                 <a
                     style="color: var(--wilton-color-white)"
-                    href="${config.website_address}${post.link}"
+                    href="${website_address}${post.link}"
                 >${post.title}</a>
             </li>
             <div class="post-date">${post.date.strftime("%Y-%m-%d")}</div>
@@ -30,7 +30,7 @@
             <li>
                 <a
                     style="color: var(--wilton-color-white)"
-                    href="${config.website_address}${cateory.link}"
+                    href="${website_address}${cateory.link}"
                 >${cateory.name}</a>
                 <span class="cateory-num">${len(cateory.posts)}</span>
             </li>
@@ -45,7 +45,7 @@
         <div class="link-cloud">
             % for tag in tags:
             <a
-                href="${config.website_address}${tag.link}"
+                href="${website_address}${tag.link}"
                 class="link-style1"
             >${tag.name}</a>
             % endfor

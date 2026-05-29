@@ -1,24 +1,24 @@
 <%def name="make_links(latex, image)">
-    <link rel="stylesheet" href="/css/wilton.css" />
+    <link rel="stylesheet" href="${website_address}/css/wilton.css" />
     % if latex:
-    <link defer rel="stylesheet" href="/css/katex.min.css" />
+    <link defer rel="stylesheet" href="${website_address}/css/katex.min.css" />
     % endif
     % if image:
-    <link defer rel="stylesheet" href="/css/fancybox.css" />
+    <link defer rel="stylesheet" href="${website_address}/css/fancybox.css" />
     % endif
 </%def>
 
 <%def name="make_scripts(codeblock, latex, image)">
-    <script src="/js/wilton.js"></script>
+    <script src="${website_address}/js/wilton.js"></script>
     % if codeblock:
-    <script defer src="/js/highlight.min.js"></script>
-    <script defer src="/js/clipboard.min.js"></script>
+    <script defer src="${website_address}/js/highlight.min.js"></script>
+    <script defer src="${website_address}/js/clipboard.min.js"></script>
     % endif
     % if latex:
-    <script defer src="/js/katex.min.js"></script>
+    <script defer src="${website_address}/js/katex.min.js"></script>
     % endif
     % if image:
-    <script defer src="/js/fancybox.umd.js"></script>
+    <script defer src="${website_address}/js/fancybox.umd.js"></script>
     % endif
 </%def>
 

@@ -54,6 +54,17 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
         console.warn(`[wilton] 目录未创建, 原因: ${e}`);
     }
+
+    try {
+        let searchBoxes = document.querySelectorAll("div.search-box");
+        searchBoxes.forEach((searchBox) => {
+            const searchInput = searchBox.querySelector("input.search");
+            const searchBtn = searchBox.querySelector("button");
+            initSearchBox(searchInput, searchBtn);
+        });
+    } catch (e) {
+        console.warn(`[wilton] 初始化搜索栏失败, 原因: ${e}`);
+    }
 });
 
 /**
@@ -178,4 +189,25 @@ function genCatalogue(elem) {
         });
     });
     return catalogue;
+}
+
+/**
+ * 初始化搜索栏
+ * @param {HTMLInputElement} searchInput
+ * @param {HTMLElement} searchBtn
+ */
+function initSearchBox(searchInput, searchBtn) {
+    // 点击按钮跳转搜索页
+    searchBtn.addEventListener("click", () => {
+        const keyword = searchInput.value.trim();
+        if (keyword) {
+            window.location.href = `/search.html?q=${encodeURIComponent(keyword)}`;
+        }
+    });
+    // 回车键激活搜索按钮点击事件
+    searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            searchBtn.click();
+        }
+    });
 }
