@@ -26,7 +26,13 @@ from sqlmodel import (
     select,
 )
 
-from mdit_plugins import front_matter_plugin, mark_plugin, table_container_plugin
+from mdit_plugins import (
+    front_matter_plugin,
+    image_handler_plugin,
+    mark_plugin,
+    table_container_plugin,
+)
+from mdit_plugins.image_handler import ImageHandlerEnv
 
 
 class MLStripper(HTMLParser):
@@ -197,6 +203,9 @@ for f in output_path.iterdir():
     elif f.is_dir():
         shutil.rmtree(f)
 
+attachment_path = output_path / "attachment"
+attachment_path.mkdir(exist_ok=True)
+
 assets_path = Path("assets")
 tempaltes = TemplateLookup(
     directories=[assets_path / "templates"],
@@ -225,6 +234,7 @@ markdown_compiler = (
     .use(texmath_plugin)
     .use(mark_plugin)
     .use(table_container_plugin)
+    .use(image_handler_plugin)
 )
 
 logger.info("正在加载站点配置")
@@ -250,12 +260,17 @@ logger.info("正在扫描与编译自定义页面")
 pages: list[Page] = []
 for page_file in (input_path / "pages").iterdir():
     if page_file.is_file() and page_file.suffix == ".md":
-        tokens = markdown_compiler.parse(page_file.read_text())
+        env: ImageHandlerEnv = {
+            "website_address": site_config.website_address,
+            "post_path": page_file,
+            "attachment_path": attachment_path,
+        }
+        tokens = markdown_compiler.parse(page_file.read_text(), env=env)
         if tokens and tokens[0].type == "front_matter":
             page_meta = PageMeta.model_validate(tomllib.loads(tokens[0].content))
         else:
             raise RuntimeError("post don't have metadata")
-        page_content = markdown_compiler.render(page_file.read_text())
+        page_content = markdown_compiler.render(page_file.read_text(), env=env)
         page = Page(
             filename=page_file.name,
             title=page_meta.title or page_file.name.removesuffix(".md"),
@@ -356,7 +371,12 @@ for category_dir in (input_path / "posts").iterdir():
 
     for post_file in category_dir.iterdir():
         if post_file.is_file() and post_file.suffix == ".md":
-            tokens = markdown_compiler.parse(post_file.read_text())
+            env: ImageHandlerEnv = {
+                "website_address": site_config.website_address,
+                "post_path": post_file,
+                "attachment_path": attachment_path,
+            }
+            tokens = markdown_compiler.parse(post_file.read_text(), env=env)
             if tokens and tokens[0].type == "front_matter":
                 post_meta = PostMeta.model_validate(tomllib.loads(tokens[0].content))
             else:
@@ -373,7 +393,7 @@ for category_dir in (input_path / "posts").iterdir():
                 for tag in tags:
                     session.refresh(tag)
 
-            post_content = markdown_compiler.render(post_file.read_text())
+            post_content = markdown_compiler.render(post_file.read_text(), env=env)
             post = Post(
                 filename=post_file.name,
                 title=post_meta.title or post_file.name.removesuffix(".md"),
@@ -588,4 +608,4 @@ if isinstance(sitemap_page, str):
 elif isinstance(sitemap_page, bytes):
     (output_path / "sitemap.xml").write_bytes(sitemap_page)
 
-# 其他 TODO: 访问量统计 评论区 图片
+# TODO: 访问量统计 评论区
