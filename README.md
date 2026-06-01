@@ -20,18 +20,20 @@
 
 目前我还是想尽快 "Make it work", 然后再慢慢分模块, 慢慢优化一些写法
 
+访问量统计和评论区服务目前用的是腾讯的 EdgeOne, 后期会考虑加入更多平台的支持
+
 ## 部分外观展示
 
 ### 主页
 
-![img1](./img1.png)
+![img1](./docs/img1.png)
 
 ### 文章阅读页面
 
-![img2](./img2.png)
+![img2](./docs/img2.png)
 
-![img3](./img3.png)
+![img3](./docs/img3.png)
 
 ### 搜索页
 
-![img4](./img4.png)
+![img4](./docs/img4.png)
