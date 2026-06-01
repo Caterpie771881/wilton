@@ -1,0 +1,12 @@
+website_address = "http://127.0.0.1:8081"
+customized_footer = """\
+<p>
+    Copyright © 2026 <a class="link-style3" href="http://127.0.0.1:8081">示例 wilton 站点</a> |
+    Power by <a class="link-style3" href="https://www.github.com/Caterpie771881/wilton">wilton</a>
+</p>\
+"""
+
+title.main = "示例 wilton 站点"
+# title.sub = "这里填你的副标题"
+
+index.max_posts = 5
