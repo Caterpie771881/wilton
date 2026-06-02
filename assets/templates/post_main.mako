@@ -20,10 +20,34 @@
     <div class="post-content" data-pagefind-body>
         ${post.content}
     </div>
+    <hr class="end-of-file"/>
+    <div class="comment-area">
+        <h2>评论区</h2>
+        <form class="comment-form">
+            <h3>发表评论</h3>
+            <div class="form-line">
+                <div>
+                    昵称 <input class="input-style1" type="text" placeholder="必填"/>
+                </div>
+                <div>
+                    邮箱 <input class="input-style1" type="text" placeholder="选填"/>
+                </div>
+                <div>
+                    网址 <input class="input-style1" type="text" placeholder="选填"/>
+                </div>
+            </div>
+            <textarea placeholder="评论区功能尚未完成..."></textarea>
+            <div style="margin: 0; text-align: center">
+                <button class="link-style2">发送评论</button>
+            </div>
+        </form>
+        <h3>所有评论</h3>
+        <div class="comment-list">暂无评论...</div>
+    </div>
 </div>
 <div id="sidebar">
     <div class="search-box">
-        搜索: <input class="search" type="text" />
+        搜索: <input class="input-style1" type="text" />
         <button class="button-style1">Go!</button>
     </div>
     <div class="catalogue">

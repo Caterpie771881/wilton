@@ -154,7 +154,7 @@ input {
     color: var(--wilton-color-white);
 }
 
-input.search {
+input.input-style1 {
     background: transparent;
     border: none;
     border-bottom: 1px solid var(--wilton-color-gray);
@@ -530,39 +530,6 @@ pre.hastips {
     color: var(--wilton-color-white);
 }
 
-/* ========== for RWD start ========== */
-@media only screen and (max-width: 1250px) {
-    #container {
-        margin-left: 5%;
-        margin-right: 5%;
-    }
-}
-
-@media only screen and (max-width: 1100px) {
-    #main {
-        flex-wrap: wrap;
-    }
-    #main > #mainbar {
-        width: 100%;
-    }
-    #main > #sidebar {
-        width: 100%;
-    }
-}
-
-@media only screen and (max-width: 1000px) {
-    .link-card {
-        width: 45%;
-    }
-}
-
-@media only screen and (max-width: 600px) {
-    .link-card {
-        width: 80%;
-    }
-}
-/* ========== for RWD end ========== */
-
 /* ========== for markdown-alert start ========== */
 .markdown-alert {
     padding-left: 0.5rem;
@@ -646,3 +613,115 @@ pre.hastips {
     color: var(--wilton-color-red);
 }
 /* ========== for markdown-alert end ========== */
+
+/* ========== for comment-area start ========== */
+hr.end-of-file {
+    margin-top: 15px;
+    height: 5px;
+    border: none;
+    border-top: 2px dashed var(--wilton-color-gray);
+    overflow: visible;
+    text-align: center;
+}
+
+hr.end-of-file::after {
+    content: "END OF FILE";
+    background: var(--wilton-color-black);
+    padding: 0 4px;
+    position: relative;
+    top: -13px;
+}
+
+.comment-form > .form-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    flex-wrap: wrap;
+}
+
+.comment-form > .form-line div {
+    margin-bottom: 0px;
+    margin-top: 0px;
+    width: 33%;
+}
+
+.comment-form > textarea {
+    box-sizing: border-box;
+    background-color: var(--wilton-color-black);
+    border: 1px solid var(--wilton-color-gray);
+    color: var(--wilton-color-white);
+    padding: 10px 12px;
+    font-size: var(--wilton-font-size-small);
+    line-height: 1.5;
+    resize: vertical;
+    border-radius: 6px;
+    outline: none;
+    width: 100%;
+    height: calc(var(--wilton-font-size-small) * 6);
+    overflow-y: scroll;
+}
+
+div.comment {
+    padding-left: 0.5rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+div.comment:nth-child(odd) {
+    border-left: 0.25em solid var(--wilton-color-blue);
+}
+
+div.comment:nth-child(even) {
+    border-left: 0.25em solid var(--wilton-color-gray);
+}
+
+/* ========== for comment-area end ========== */
+
+/* ========== for RWD start ========== */
+@media only screen and (max-width: 1250px) {
+    #container {
+        margin-left: 5%;
+        margin-right: 5%;
+    }
+}
+
+@media only screen and (max-width: 1100px) {
+    #main {
+        flex-wrap: wrap;
+    }
+    #main > #mainbar {
+        width: 100%;
+    }
+    #main > #sidebar {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 1000px) {
+    .link-card {
+        width: 45%;
+    }
+}
+
+@media only screen and (max-width: 750px) {
+    .comment-form > .form-line {
+        flex-direction: column;
+    }
+    .comment-form > .form-line div {
+        width: 100%;
+    }
+    .comment-form > .form-line div > input {
+        width: 80%;
+        max-width: none;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .link-card {
+        width: 80%;
+    }
+}
+/* ========== for RWD end ========== */
