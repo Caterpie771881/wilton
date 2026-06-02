@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import logging
 import shutil
@@ -34,6 +35,11 @@ from mdit_plugins import (
 )
 from mdit_plugins.image_handler import ImageHandlerEnv
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--src", type=str, required=True, help="源文件路径")
+parser.add_argument("--dst", type=str, default="dist", help="输出文件路径")
+args = parser.parse_args()
+
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -57,7 +63,7 @@ class Link(BaseModel):
 
 class SiteTitleConfig(BaseModel):
     main: str = ""
-    sub: str | None
+    sub: str | None = None
 
 
 class SiteIndexConfig(BaseModel):
@@ -191,12 +197,13 @@ console_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
 
-input_path = Path("input")
+input_path = Path(args.src)
 configs_path = input_path / "configs"
 pages_path = input_path / "pages"
 posts_path = input_path / "posts"
 
-output_path = Path("test-dist")
+output_path = Path(args.dst)
+output_path.mkdir(exist_ok=True)
 for f in output_path.iterdir():
     if f.is_file():
         f.unlink()
@@ -607,5 +614,3 @@ if isinstance(sitemap_page, str):
     (output_path / "sitemap.xml").write_text(sitemap_page)
 elif isinstance(sitemap_page, bytes):
     (output_path / "sitemap.xml").write_bytes(sitemap_page)
-
-# TODO: 访问量统计 评论区
