@@ -11,7 +11,7 @@
         </div>
         % endfor
         % if len(config[group]) % 3 == 2:
-        <div class="link-card"></div>
+        <div class="link-card" style="margin: 0px"></div>
         % endif
     </div>
     % endfor
