@@ -1,8 +1,11 @@
-+++
-title = "示例文章"
-post_date = 2026-01-01
-tags = [ "示例" ]
-+++
+---
+# 你可以使用 yaml 编写页面或文章的元数据
+# wilton 也支持使用 toml 编写元数据, 见 example/pages/about-me.md
+title: "示例文章"
+post_date: 2026-01-01
+tags:
+  - "示例"
+---
 这是一篇示例文章, 展示了 wilton 的 markdown 编译器支持的语法
 
 # H1 标题
@@ -31,7 +34,7 @@ tags = [ "示例" ]
 
 ---
 
-# 链接
+# 链接与脚注
 
 [普通链接](https://www.example.com)
 
@@ -44,6 +47,10 @@ tags = [ "示例" ]
 [引用链接][id]
 
 [id]: https://www.example.com/reference "参考链接"
+
+这是一段包含脚注[^1]的文本
+
+[^1]: 脚注内容
 
 ---
 

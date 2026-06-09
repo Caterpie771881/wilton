@@ -1,4 +1,6 @@
 +++
+# 你可以使用 toml 编写页面或文章的元数据
+# wilton 也支持使用 yaml 编写元数据, 见 example/posts/分类A/example.md
 title = "关于我"
 +++
 # 关于我
