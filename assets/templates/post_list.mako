@@ -22,18 +22,22 @@
     <h1>${title}</h1>
     % for post in posts:
     <div class="post-card">
-        <a href="${website_address}${post.link}"><h2>${post.title}</h2></a>
+        <% full_link = f"{website_address}{post.link}" %>
+        <a href="${full_link}"><h2>${post.title}</h2></a>
         <a class="link-style2" href="${post.category.link}">${post.category.name}</a>
         <div>${post.intro}</div>
         <blockquote>
             <p>
-                Post on ${post.date.strftime("%Y-%m-%d")} |
-                views: <span class="page-view" link="${post.link}">loading...</span> |
+                Post on ${post.date.strftime("%Y-%m-%d")}
+                |
+                views: <span class="page-view" link="${post.link}">loading...</span>
+                |
                 comment: <span class="comment-count" link="${post.link}">loading...</span>
             </p>
         </blockquote>
     </div>
     % endfor
+    <script>fetchViewCounts("${website_address}");fetchCommentCounts("${website_address}");</script>
     ${make_pagination(total_page, current_page)}
 </div>
 

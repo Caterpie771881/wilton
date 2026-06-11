@@ -671,11 +671,11 @@ div.comment {
 }
 
 div.comment:nth-child(odd) {
-    border-left: 0.25em solid var(--wilton-color-blue);
+    border-left: 0.25em solid var(--wilton-color-yellow);
 }
 
 div.comment:nth-child(even) {
-    border-left: 0.25em solid var(--wilton-color-gray);
+    border-left: 0.25em solid var(--wilton-color-blue);
 }
 
 /* ========== for comment-area end ========== */

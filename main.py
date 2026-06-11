@@ -10,12 +10,15 @@ from math import ceil
 from pathlib import Path
 from typing import Literal, Sequence
 
+import frontmatter
 from mako.lookup import TemplateLookup
 from markdown_it import MarkdownIt
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.texmath import texmath_plugin
 from pagefind.index import IndexConfig, PagefindIndex
 from pydantic import BaseModel, TypeAdapter
+
+# from slugify import slugify
 from sqlmodel import (
     Field,
     Relationship,
@@ -28,7 +31,6 @@ from sqlmodel import (
 )
 
 from mdit_plugins import (
-    front_matter_plugin,
     image_handler_plugin,
     mark_plugin,
     table_container_plugin,
@@ -210,8 +212,7 @@ for f in output_path.iterdir():
     elif f.is_dir():
         shutil.rmtree(f)
 
-attachment_path = output_path / "attachment"
-attachment_path.mkdir(exist_ok=True)
+attachment_path = output_path / "attachments"
 
 assets_path = Path("assets")
 tempaltes = TemplateLookup(
@@ -236,7 +237,7 @@ markdown_compiler = (
     )
     .enable("table")
     .enable("strikethrough")
-    .use(front_matter_plugin)
+    # .use(front_matter_plugin)
     .use(footnote_plugin)
     .use(texmath_plugin)
     .use(mark_plugin)
@@ -267,17 +268,14 @@ logger.info("正在扫描与编译自定义页面")
 pages: list[Page] = []
 for page_file in (input_path / "pages").iterdir():
     if page_file.is_file() and page_file.suffix == ".md":
-        env: ImageHandlerEnv = {
+        md_env: ImageHandlerEnv = {
             "website_address": site_config.website_address,
             "post_path": page_file,
             "attachment_path": attachment_path,
         }
-        tokens = markdown_compiler.parse(page_file.read_text(), env=env)
-        if tokens and tokens[0].type == "front_matter":
-            page_meta = PageMeta.model_validate(tomllib.loads(tokens[0].content))
-        else:
-            raise RuntimeError("post don't have metadata")
-        page_content = markdown_compiler.render(page_file.read_text(), env=env)
+        page_meta, page_content = frontmatter.parse(page_file.read_text())
+        page_meta = PageMeta.model_validate(page_meta)
+        page_content = markdown_compiler.render(page_content, env=dict(md_env))
         page = Page(
             filename=page_file.name,
             title=page_meta.title or page_file.name.removesuffix(".md"),
@@ -357,6 +355,10 @@ shutil.copytree(
     dst=output_path / "js",
     dirs_exist_ok=True,
 )
+shutil.copytree(
+    src=assets_path / "attachments",
+    dst=output_path / "attachments",
+)
 shutil.copyfile(
     src=assets_path / "favicon.ico",
     dst=output_path / "favicon.ico",
@@ -378,16 +380,13 @@ for category_dir in (input_path / "posts").iterdir():
 
     for post_file in category_dir.iterdir():
         if post_file.is_file() and post_file.suffix == ".md":
-            env: ImageHandlerEnv = {
+            md_env = {
                 "website_address": site_config.website_address,
                 "post_path": post_file,
                 "attachment_path": attachment_path,
             }
-            tokens = markdown_compiler.parse(post_file.read_text(), env=env)
-            if tokens and tokens[0].type == "front_matter":
-                post_meta = PostMeta.model_validate(tomllib.loads(tokens[0].content))
-            else:
-                raise RuntimeError("post don't have metadata")
+            post_meta, post_content = frontmatter.parse(post_file.read_text())
+            post_meta = PostMeta.model_validate(post_meta)
 
             tags: Sequence[Tag] = []
             with Session(db) as session:
@@ -400,7 +399,7 @@ for category_dir in (input_path / "posts").iterdir():
                 for tag in tags:
                     session.refresh(tag)
 
-            post_content = markdown_compiler.render(post_file.read_text(), env=env)
+            post_content = markdown_compiler.render(post_content, env=dict(md_env))
             post = Post(
                 filename=post_file.name,
                 title=post_meta.title or post_file.name.removesuffix(".md"),
@@ -614,3 +613,11 @@ if isinstance(sitemap_page, str):
     (output_path / "sitemap.xml").write_text(sitemap_page)
 elif isinstance(sitemap_page, bytes):
     (output_path / "sitemap.xml").write_bytes(sitemap_page)
+
+logger.info("正在导入云函数")
+
+shutil.copytree(
+    src=assets_path / "edgeone/cloud-functions",
+    dst=output_path / "cloud-functions",
+    dirs_exist_ok=True,
+)

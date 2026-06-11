@@ -11,9 +11,9 @@
             <p>
                 Post on <span data-pagefind-meta="date">${post.date.strftime("%Y-%m-%d")}</span>
                 |
-                views: <span>loading...</span>
+                views: <span class="page-view">loading...</span>
                 |
-                comment: <span>loading...</span>
+                comment: <span class="comment-count">loading...</span>
             </p>
         </blockquote>
     </div>
@@ -23,26 +23,26 @@
     <hr class="end-of-file"/>
     <div class="comment-area">
         <h2>评论区</h2>
-        <form class="comment-form">
+        <form class="comment-form" id="comment-form">
             <h3>发表评论</h3>
             <div class="form-line">
                 <div>
-                    昵称 <input class="input-style1" type="text" placeholder="必填"/>
+                    昵称 <input class="input-style1" name="name" type="text" placeholder="必填"/>
                 </div>
                 <div>
-                    邮箱 <input class="input-style1" type="text" placeholder="选填"/>
+                    邮箱 <input class="input-style1" name="email" type="text" placeholder="选填"/>
                 </div>
                 <div>
-                    网址 <input class="input-style1" type="text" placeholder="选填"/>
+                    网址 <input class="input-style1" name="link" type="text" placeholder="选填"/>
                 </div>
             </div>
-            <textarea placeholder="评论区功能尚未完成..."></textarea>
+            <textarea name="content" placeholder="在这里输入您的留言..."></textarea>
             <div style="margin: 0; text-align: center">
                 <button class="link-style2">发送评论</button>
             </div>
         </form>
         <h3>所有评论</h3>
-        <div class="comment-list">暂无评论...</div>
+        <div class="comment-list" id="comment-list">暂无评论...</div>
     </div>
 </div>
 <div id="sidebar">
@@ -54,3 +54,10 @@
         <h2>文章目录</h2>
     </div>
 </div>
+
+<script src="${website_address}/js/comment-area.js"></script>
+<script>
+addViewCount("${website_address}", "${post.link}");
+loadCommentArea("${website_address}", "${post.link}");
+bindSubmitCommentEvent("${website_address}", "${post.link}");
+</script>

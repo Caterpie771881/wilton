@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
         let searchBoxes = document.querySelectorAll("div.search-box");
         searchBoxes.forEach((searchBox) => {
-            const searchInput = searchBox.querySelector("input.search");
+            const searchInput = searchBox.querySelector(".input-style1");
             const searchBtn = searchBox.querySelector("button");
             initSearchBox(searchInput, searchBtn);
         });
@@ -210,4 +210,139 @@ function initSearchBox(searchInput, searchBtn) {
             searchBtn.click();
         }
     });
+}
+
+/**
+ * 获取页面中文章的访问量
+ * @param {string} websiteAddress
+ */
+async function fetchViewCounts(websiteAddress) {
+    // 获取页面中所有要获取访问量的链接
+    const postCards = document.querySelectorAll("div.post-card");
+    /** @type {Object.<string, HTMLElement>} */
+    const targets = {};
+    /** @type {string[]} */
+    const pages = [];
+    postCards.forEach((postCard) => {
+        const pageViewElm = postCard.querySelector(".page-view");
+        if (pageViewElm === null) return;
+
+        const link = pageViewElm.getAttribute("link");
+        if (link === null) return;
+
+        pages.push(link);
+        targets[link] = pageViewElm;
+    });
+
+    // 调用 API 查询访问量
+    fetch(`${websiteAddress}/api/view-counter/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            pages: pages,
+        }),
+    })
+        .then((resp) => resp.json())
+        .then((data) => {
+            for (const link in data) {
+                const views = data[link];
+                targets[link].innerText = views;
+            }
+        })
+        .catch((error) => {
+            console.error(`[wilton] 获取访问量失败, 原因: ${error}`);
+        });
+}
+
+/**
+ * @param {string} websiteAddress
+ * @param {string} pageLink
+ */
+async function addViewCount(websiteAddress, pageLink) {
+    const pageViewElms = document.querySelectorAll(".page-view");
+    fetch(`${websiteAddress}/api/view-counter/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            page: pageLink,
+        }),
+    })
+        .then((resp) => resp.json())
+        .then(
+            /**
+             * @param {{ page: string; pv: number; pv_abbr: string }} data
+             */
+            (data) => {
+                pageViewElms.forEach((elm) => {
+                    elm.innerText = data.pv_abbr;
+                });
+            },
+        )
+        .catch((error) => {
+            console.error(`[wilton] 获取访问量失败, 原因: ${error}`);
+        });
+}
+
+/**
+ * @param {string} text
+ * @returns {string}
+ */
+function escapeHtml(text) {
+    return text.replace(/[&<>'"]/g, (m) => {
+        switch (m) {
+            case "&":
+                return "&amp;";
+            case "<":
+                return "&lt;";
+            case ">":
+                return "&gt;";
+            case "'":
+                return "&#39;";
+            case '"':
+                return "&quot;";
+            case " ":
+                return "&nbsp;";
+        }
+    });
+}
+
+/**
+ * @param {string} websiteAddress
+ */
+function fetchCommentCounts(websiteAddress) {
+    // 获取页面中所有要获取评论数的链接
+    const postCards = document.querySelectorAll("div.post-card");
+    /** @type {Object.<string, HTMLElement>} */
+    const targets = {};
+    /** @type {string[]} */
+    const pages = [];
+    postCards.forEach((postCard) => {
+        const commentCountElm = postCard.querySelector(".comment-count");
+        if (commentCountElm === null) return;
+
+        const link = commentCountElm.getAttribute("link");
+        if (link === null) return;
+
+        pages.push(link);
+        targets[link] = commentCountElm;
+    });
+
+    // 调用 API 查询评论
+    fetch(`${websiteAddress}/api/comments/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            pages: pages,
+        }),
+    })
+        .then((resp) => resp.json())
+        .then((data) => {
+            for (const link in data) {
+                const comments = data[link];
+                targets[link].innerText = comments.length;
+            }
+        })
+        .catch((error) => {
+            console.error(`[wilton] 获取评论数量失败, 原因: ${error}`);
+        });
 }

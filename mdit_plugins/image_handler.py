@@ -1,10 +1,12 @@
 import hashlib
 import shutil
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Sequence, TypedDict
 
 from markdown_it import MarkdownIt
+from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
+from markdown_it.utils import OptionsDict
 
 
 class ImageHandlerEnv(TypedDict):
@@ -14,53 +16,53 @@ class ImageHandlerEnv(TypedDict):
 
 
 def get_file_md5(file_path: str | Path) -> str:
-    """计算文件的 MD5 哈希值"""
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        # 分块读取，避免大文件内存爆炸
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
 
-def _collect_image_urls(tokens: list[Token], env: ImageHandlerEnv) -> None:
-    """遍历 token 列表（含 children），打印图片 token 的 src 链接。"""
-    for token in tokens:
-        # 识别图片 token：type 为 "image" 且标签为 "img"
-        if token.type == "image" and token.tag == "img":
-            src = token.attrGet("src")
-
-            if (
-                src is not None
-                and isinstance(src, str)
-                and not (src.startswith("http://") or src.startswith("https://"))
-            ):
-                img_path = env["post_path"].parent / src
-                img_hash = get_file_md5(img_path)
-                img_output_path = (env["attachment_path"] / img_hash).with_suffix(
-                    img_path.suffix
-                )
-                token.attrSet(
-                    "src",
-                    env["website_address"]
-                    + (Path("/attachment") / img_hash)
-                    .with_suffix(img_path.suffix)
-                    .as_posix(),
-                )
-                if not img_output_path.exists():
-                    shutil.copyfile(src=img_path, dst=img_output_path)
-
-        # 递归处理 children（图片 token 可能出现在 inline token 的子节点中）
-        if token.children:
-            _collect_image_urls(token.children, env)
-
-
 def image_handler_plugin(md: MarkdownIt) -> None:
-    md.core.ruler.push("print_image_urls", _print_image_urls_rule)
+    """
+    markdown-it-py 插件: 编译时将引用的图片置入特定目录, 并按照其 md5 对文件名与引用链接进行重命名
+    """
+    md.add_render_rule("image", _render_image)
 
 
-def _print_image_urls_rule(state: Any) -> None:
-    """
-    core 链的规则函数，接收 StateCore 对象，其中 state.tokens 为 token 列表。
-    """
-    _collect_image_urls(state.tokens, state.env)
+def _render_image(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: ImageHandlerEnv,
+) -> str:
+    token = tokens[idx]
+
+    src = token.attrGet("src")
+
+    bronk_image_src = (
+        env["website_address"] + (Path("/attachments") / "broken-image.svg").as_posix()
+    )
+    if not isinstance(src, str) or src.startswith(("http://", "https://")):
+        token.attrSet("onerror", f"this.onerror=null;this.src='{bronk_image_src}';")
+        return renderer.image(tokens, idx, options, dict(env))
+
+    img_path = env["post_path"].parent / src
+    if not img_path.exists():
+        # FIXME: 用 logger 来打印警告信息
+        print(f"img not exists: {img_path}")
+        token.attrSet("src", bronk_image_src)
+        return renderer.image(tokens, idx, options, dict(env))
+
+    img_hash = get_file_md5(img_path)
+    img_output_path = (env["attachment_path"] / img_hash).with_suffix(img_path.suffix)
+    token.attrSet(
+        "src",
+        env["website_address"]
+        + (Path("/attachments") / img_hash).with_suffix(img_path.suffix).as_posix(),
+    )
+    if not img_output_path.exists():
+        shutil.copyfile(src=img_path, dst=img_output_path)
+
+    return renderer.image(tokens, idx, options, dict(env))
