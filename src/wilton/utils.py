@@ -1,5 +1,7 @@
 from html.parser import HTMLParser
 
+from slugify import slugify as _slugify
+
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -14,3 +16,7 @@ class MLStripper(HTMLParser):
 
     def get_data(self):
         return "".join(self.text)
+
+
+def slugify(text: str) -> str:
+    return _slugify(text, lowercase=False, separator="_")

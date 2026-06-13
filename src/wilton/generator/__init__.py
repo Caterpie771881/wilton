@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Sequence
 
 from pydantic import BaseModel
-from slugify import slugify
 from sqlalchemy import Engine
 from sqlmodel import Session, select
 
@@ -78,12 +77,12 @@ class Generator:
             categories = session.exec(query).all()
 
             for category in categories:
-                category_dir = self.dist_path / "posts" / slugify(category.name)
+                category_dir = self.dist_path / "posts" / category.slug_name
                 category_dir.mkdir(parents=True, exist_ok=True)
                 self.gen_post_list_for_category(category, category_dir / "_")
 
                 for post in category.posts:
-                    post_path = category_dir / slugify(post.filename)
+                    post_path = category_dir / post.slug_filename
                     content = self.templates.get_tmpl("post.mako").render(
                         ctx=self.tmpl_ctx,
                         post=post,
@@ -134,7 +133,7 @@ class Generator:
         with Session(self.db) as session:
             tags = session.exec(select(Tag)).all()
             for tag in tags:
-                tag_dir = self.dist_path / "tags" / slugify(tag.name)
+                tag_dir = self.dist_path / "tags" / tag.slug_name
                 tag_dir.mkdir(parents=True, exist_ok=True)
                 self.gen_post_list_for_tag(tag, tag_dir)
 
@@ -177,7 +176,7 @@ class Generator:
             pages = session.exec(select(Page)).all()
 
         for page in pages:
-            target_path = (self.dist_path / slugify(page.filename)).with_suffix(".html")
+            target_path = (self.dist_path / page.slug_filename).with_suffix(".html")
             content = self.templates.get_tmpl("page.mako").render(
                 ctx=self.tmpl_ctx,
                 page=page,

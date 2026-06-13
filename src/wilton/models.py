@@ -2,10 +2,9 @@ from datetime import datetime
 from functools import cached_property
 from pathlib import Path
 
-from slugify import slugify
 from sqlmodel import Field, Relationship, SQLModel
 
-from wilton.utils import MLStripper
+from wilton.utils import MLStripper, slugify
 
 
 class PostTagLink(SQLModel, table=True):
@@ -30,9 +29,13 @@ class Post(SQLModel, table=True):
     tags: list[Tag] = Relationship(back_populates="posts", link_model=PostTagLink)
 
     @cached_property
+    def slug_filename(self) -> str:
+        return slugify(self.filename)
+
+    @cached_property
     def link(self) -> str:
         return (
-            (Path("/posts") / slugify(self.category.name) / slugify(self.filename))
+            (Path("/posts") / self.category.slug_name / self.slug_filename)
             .with_suffix(".html")
             .as_posix()
         )
@@ -57,8 +60,12 @@ class Category(SQLModel, table=True):
     posts: list[Post] = Relationship(back_populates="category")
 
     @cached_property
+    def slug_name(self) -> str:
+        return slugify(self.name)
+
+    @cached_property
     def link(self) -> str:
-        return f"/posts/{slugify(self.name)}/_/post_list_1.html"
+        return f"/posts/{self.slug_name}/_/post_list_1.html"
 
 
 class Tag(SQLModel, table=True):
@@ -70,8 +77,12 @@ class Tag(SQLModel, table=True):
     posts: list[Post] = Relationship(back_populates="tags", link_model=PostTagLink)
 
     @cached_property
+    def slug_name(self) -> str:
+        return slugify(self.name)
+
+    @cached_property
     def link(self) -> str:
-        return f"/tags/{slugify(self.name)}/"
+        return f"/tags/{self.slug_name}/"
 
 
 class Page(SQLModel, table=True):
@@ -83,5 +94,9 @@ class Page(SQLModel, table=True):
     content: str
 
     @cached_property
+    def slug_filename(self) -> str:
+        return slugify(self.filename)
+
+    @cached_property
     def link(self) -> str:
-        return (Path("/") / slugify(self.filename)).with_suffix(".html").as_posix()
+        return (Path("/") / self.slug_filename).with_suffix(".html").as_posix()
