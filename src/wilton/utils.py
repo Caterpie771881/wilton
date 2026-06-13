@@ -1,4 +1,6 @@
+import shutil
 from html.parser import HTMLParser
+from pathlib import Path
 
 from slugify import slugify as _slugify
 
@@ -19,4 +21,15 @@ class MLStripper(HTMLParser):
 
 
 def slugify(text: str) -> str:
-    return _slugify(text, lowercase=False, separator="_")
+    return _slugify(text, lowercase=False)
+
+
+def clear_path(path: Path) -> None:
+    if not path.exists() or not path.is_dir():
+        return
+
+    for f in path.iterdir():
+        if f.is_file():
+            f.unlink()
+        elif f.is_dir():
+            shutil.rmtree(f)

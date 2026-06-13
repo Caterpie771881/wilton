@@ -12,6 +12,7 @@ from wilton.core.logging import logger
 from wilton.core.template import TemplateLookup
 from wilton.generator import Generator
 from wilton.scanner import Scanner
+from wilton.utils import clear_path
 
 
 def get_args() -> Namespace:
@@ -51,7 +52,9 @@ def main() -> None:
     args = get_args()
     source_path = Path(args.src)
     dist_path = Path(args.dst)
+
     dist_path.mkdir(exist_ok=True)
+    clear_path(dist_path)
 
     init_db(db)
 
