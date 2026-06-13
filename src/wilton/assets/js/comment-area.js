@@ -76,7 +76,6 @@ async function loadCommentArea(websiteAddress, pageLink) {
     if (commentList === null || comments.length === 0) return;
 
     try {
-        comments.sort((a, b) => b.date.localeCompare(a.date));
         commentList.replaceChildren();
         comments.forEach((data) => {
             const commentCard = makeCommentCard(
@@ -86,7 +85,7 @@ async function loadCommentArea(websiteAddress, pageLink) {
                 data.link,
                 data.email,
             );
-            commentList.appendChild(commentCard);
+            commentList.prepend(commentCard);
         });
     } catch (error) {
         console.error(`[wilton] 生成历史评论失败: ${error}`);
