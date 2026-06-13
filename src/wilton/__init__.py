@@ -103,8 +103,6 @@ def main() -> None:
     )
     generator.gen_dist()
 
-    # TODO: 压缩 html
-
     # 编译静态索引
     asyncio.run(
         build_index(dist_path, dist_path / "pagefind", site_config.website_address)

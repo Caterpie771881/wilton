@@ -28,8 +28,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>
-        <%block name="title">
+        <title><%block name="title" filter="trim">
         % if sub_title:
         ${ctx.config.title.main} - ${sub_title}
         % elif ctx.config.title.sub:
@@ -37,8 +36,7 @@
         % else:
         ${ctx.config.title.main}
         % endif
-        </%block>
-        </title>
+        </%block></title>
         ${make_links(latex_enable, image_enable)}
         ${make_scripts(codeblock_enable, latex_enable, image_enable)}
     </head>

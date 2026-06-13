@@ -83,7 +83,7 @@ class Generator:
 
                 for post in category.posts:
                     post_path = category_dir / post.slug_filename
-                    content = self.templates.get_tmpl("post.mako").render(
+                    content = self.templates.get_tmpl("post.mako", minify=True).render(
                         ctx=self.tmpl_ctx,
                         post=post,
                         sidebar=self.sidebar_for_post,
@@ -105,7 +105,7 @@ class Generator:
 
         for page in range(1, total_page + 1):
             offset = (page - 1) * page_size
-            content = self.templates.get_tmpl("post_list.mako").render(
+            content = self.templates.get_tmpl("post_list.mako", minify=True).render(
                 ctx=self.tmpl_ctx,
                 posts=posts[offset : offset + page_size],
                 sidebar=self.sidebar_default,
@@ -125,7 +125,9 @@ class Generator:
         )
 
         (target_path / "../index.html").write_text(
-            self.templates.get_tmpl("redirect.mako").render(target="_/post_list_1.html")
+            self.templates.get_tmpl("redirect.mako", minify=True).render(
+                target="_/post_list_1.html"
+            )
         )
 
     def gen_tags_dir(self) -> None:
@@ -152,7 +154,7 @@ class Generator:
 
             total_post = len(posts)
             if total_post == 0:
-                content = self.templates.get_tmpl("zero_post.mako").render(
+                content = self.templates.get_tmpl("zero_post.mako", minify=True).render(
                     ctx=self.tmpl_ctx,
                     sidebar=self.sidebar_default,
                 )
@@ -178,7 +180,7 @@ class Generator:
         logger.info("正在生成自定义页面")
         for page in pages:
             target_path = (self.dist_path / page.slug_filename).with_suffix(".html")
-            content = self.templates.get_tmpl("page.mako").render(
+            content = self.templates.get_tmpl("page.mako", minify=True).render(
                 ctx=self.tmpl_ctx,
                 page=page,
                 sidebar=self.sidebar_default,
@@ -194,7 +196,7 @@ class Generator:
         if self.friends_config is None:
             return
 
-        content = self.templates.get_tmpl("friends.mako").render(
+        content = self.templates.get_tmpl("friends.mako", minify=True).render(
             ctx=self.tmpl_ctx,
             config=self.friends_config,
         )
@@ -203,7 +205,7 @@ class Generator:
     def gen_search_page(self) -> None:
         """生成搜索页"""
         logger.info("正在生成搜索页")
-        content = self.templates.get_tmpl("search.mako").render(
+        content = self.templates.get_tmpl("search.mako", minify=True).render(
             ctx=self.tmpl_ctx,
             sidebar=self.sidebar_default,
         )
