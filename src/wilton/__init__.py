@@ -53,15 +53,13 @@ def main() -> None:
     source_path = Path(args.src)
     dist_path = Path(args.dst)
 
+    logger.info(f"源路径: {source_path.absolute()}")
+    logger.info(f"输出路径: {dist_path.absolute()}")
+
     dist_path.mkdir(exist_ok=True)
     clear_path(dist_path)
 
     init_db(db)
-
-    # 扫描博客文件夹
-    scanner = Scanner(source_path, db)
-    scanner.scan_posts()
-    scanner.scan_pages()
 
     # 加载配置
     config_loader = ConfigLoader(source_path)
@@ -78,6 +76,11 @@ def main() -> None:
     assets_load.load_theme()
     assets_load.load_icon()
     assets_load.load_backend()
+
+    # 扫描博客文件夹
+    scanner = Scanner(source_path, db)
+    scanner.scan_posts()
+    scanner.scan_pages()
 
     # 编译文章与页面
     compiler = MDCompiler(

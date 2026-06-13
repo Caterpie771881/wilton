@@ -165,7 +165,7 @@ class Generator:
 
     def gen_pages(self) -> None:
         """生成所有页面"""
-        logger.info("正在生成页面")
+        logger.info("开始生成页面")
 
         if self.friends_config:
             self.gen_friends_page()
@@ -175,6 +175,7 @@ class Generator:
         with Session(self.db) as session:
             pages = session.exec(select(Page)).all()
 
+        logger.info("正在生成自定义页面")
         for page in pages:
             target_path = (self.dist_path / page.slug_filename).with_suffix(".html")
             content = self.templates.get_tmpl("page.mako").render(

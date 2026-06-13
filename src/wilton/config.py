@@ -40,6 +40,8 @@ class ConfigLoader:
 
     def load_site_config(self) -> SiteConfig | None:
         """加载网站配置"""
+        logger.info("正在加载网站配置")
+
         config_file = self.config_path / "site.toml"
         if not config_file.exists():
             logger.error("加载网站配置失败: 文件不存在")
@@ -56,11 +58,14 @@ class ConfigLoader:
 
     def load_friends_config(self) -> FriendsConfig | None:
         """加载友链配置"""
+        logger.info("正在加载友链配置")
+
         config_file = self.config_path / "friends.toml"
         if not config_file.exists():
+            logger.info("配置文件目录下不存在 `friends.toml`, 将不会生成友链页面")
             return None
         if not config_file.is_file():
-            logger.warning("friends.toml 不是一个文件")
+            logger.warning("加载失败, friends.toml 不是一个文件")
             return None
         # FIXME: 这里要捕获啥异常啊我靠
         return TypeAdapter(FriendsConfig).validate_python(toml.load(config_file))
