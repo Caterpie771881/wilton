@@ -1,7 +1,7 @@
 [project]
 name = "wilton"
 version = "0.1.0"
-description = "Add your description here"
+description = "A terminal-style static site generator designed for writing technical blogs"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -14,3 +14,10 @@ dependencies = [
     "sqlmodel>=0.0.38",
     "toml>=0.10.2",
 ]
+
+[project.scripts]
+wilton = "wilton:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

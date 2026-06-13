@@ -1,3 +1,5 @@
+<%inherit file="base.mako"/>
+
 <%def name="make_pagination(total, current)">
     <div class="pagination" ${'style="display: none"' if total == 1 else ''}>
         <% left = max(1, current-2) %><% right = min(total, left + 3) + 1 %>
@@ -18,11 +20,12 @@
     </div>
 </%def>
 
+<%block name="main">
 <div id="mainbar">
     <h1>${title}</h1>
     % for post in posts:
     <div class="post-card">
-        <% full_link = f"{website_address}{post.link}" %>
+        <% full_link = f"{ctx.config.website_address}{post.link}" %>
         <a href="${full_link}"><h2>${post.title}</h2></a>
         <a class="link-style2" href="${post.category.link}">${post.category.name}</a>
         <div>${post.intro}</div>
@@ -37,8 +40,14 @@
         </blockquote>
     </div>
     % endfor
-    <script>fetchViewCounts("${website_address}");fetchCommentCounts("${website_address}");</script>
     ${make_pagination(total_page, current_page)}
 </div>
-
 ${sidebar}
+</%block>
+
+<%block name="script">
+<script>
+fetchViewCounts("${ctx.config.website_address}");
+fetchCommentCounts("${ctx.config.website_address}");
+</script>
+</%block>

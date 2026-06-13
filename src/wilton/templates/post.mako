@@ -1,3 +1,9 @@
+<%inherit file="base.mako"/>
+
+<%block name="title">${post.title}</%block>
+
+<%block name="main">
+<% website_address = ctx.config.website_address %>
 <div id="mainbar">
     <div class="post-meta">
         <div class="post-title" data-pagefind-meta="title">${post.title}</div>
@@ -45,19 +51,15 @@
         <div class="comment-list" id="comment-list">暂无评论...</div>
     </div>
 </div>
-<div id="sidebar">
-    <div class="search-box">
-        搜索: <input class="input-style1" type="text" />
-        <button class="button-style1">Go!</button>
-    </div>
-    <div class="catalogue">
-        <h2>文章目录</h2>
-    </div>
-</div>
+${sidebar}
+</%block>
 
+<%block name="script">
+<% website_address = ctx.config.website_address %>
 <script src="${website_address}/js/comment-area.js"></script>
 <script>
 addViewCount("${website_address}", "${post.link}");
 loadCommentArea("${website_address}", "${post.link}");
 bindSubmitCommentEvent("${website_address}", "${post.link}");
 </script>
+</%block>

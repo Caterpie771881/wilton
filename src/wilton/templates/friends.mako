@@ -1,3 +1,8 @@
+<%inherit file="base.mako"/>
+
+<%block name="title">${ctx.config.title.main} - 友情链接</%block>
+
+<%block name="main">
 <div id="mainbar" class="no-side-bar">
     <h1>友情链接</h1>
     % for group in config:
@@ -16,3 +21,4 @@
     </div>
     % endfor
 </div>
+</%block>

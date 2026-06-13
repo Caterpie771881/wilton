@@ -1,5 +1,4 @@
 import hashlib
-import shutil
 from pathlib import Path
 from typing import Sequence, TypedDict
 
@@ -7,6 +6,8 @@ from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from markdown_it.token import Token
 from markdown_it.utils import OptionsDict
+
+from wilton.core.logging import logger
 
 
 class ImageHandlerEnv(TypedDict):
@@ -50,8 +51,7 @@ def _render_image(
 
     img_path = env["post_path"].parent / src
     if not img_path.exists():
-        # FIXME: 用 logger 来打印警告信息
-        print(f"img not exists: {img_path}")
+        logger.warning(f"image not exists: {img_path}")
         token.attrSet("src", bronk_image_src)
         return renderer.image(tokens, idx, options, dict(env))
 
@@ -63,6 +63,6 @@ def _render_image(
         + (Path("/attachments") / img_hash).with_suffix(img_path.suffix).as_posix(),
     )
     if not img_output_path.exists():
-        shutil.copyfile(src=img_path, dst=img_output_path)
+        img_path.copy(img_output_path)
 
     return renderer.image(tokens, idx, options, dict(env))
