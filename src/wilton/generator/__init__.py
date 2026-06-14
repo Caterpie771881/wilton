@@ -4,7 +4,7 @@ from typing import Sequence
 
 from pydantic import BaseModel
 from sqlalchemy import Engine
-from sqlmodel import Session, select
+from sqlmodel import Session, desc, select
 
 from wilton.config import FriendsConfig, SiteConfig
 from wilton.core.logging import logger
@@ -150,7 +150,7 @@ class Generator:
 
     def gen_post_list_for_posts(self) -> None:
         with Session(self.db) as session:
-            posts = session.exec(select(Post)).all()
+            posts = session.exec(select(Post).order_by(desc(Post.date))).all()
 
             total_post = len(posts)
             if total_post == 0:

@@ -57,7 +57,10 @@ class Category(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
 
-    posts: list[Post] = Relationship(back_populates="category")
+    posts: list[Post] = Relationship(
+        back_populates="category",
+        sa_relationship_kwargs={"order_by": "desc(Post.date)"},
+    )
 
     @cached_property
     def slug_name(self) -> str:
@@ -74,7 +77,11 @@ class Tag(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
 
-    posts: list[Post] = Relationship(back_populates="tags", link_model=PostTagLink)
+    posts: list[Post] = Relationship(
+        back_populates="tags",
+        link_model=PostTagLink,
+        sa_relationship_kwargs={"order_by": "desc(Post.date)"},
+    )
 
     @cached_property
     def slug_name(self) -> str:
