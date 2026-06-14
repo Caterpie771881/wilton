@@ -1,6 +1,10 @@
 # wilton
 
+<div align="center">
+
 ![wilton.png](./docs/wilton.png)
+
+</div>
 
 为撰写技术博客设计的终端风格的静态站点生成器
 
