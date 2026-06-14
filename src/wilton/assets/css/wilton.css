@@ -388,7 +388,7 @@ pre code {
 }
 
 img {
-    max-width: 100%;
+    max-width: 80%;
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -396,6 +396,10 @@ img {
     margin-bottom: 10px;
     border-radius: 5px;
     box-shadow: 0 0 2px 0 #000000;
+}
+
+img.full {
+    max-width: 100%;
 }
 
 /* for katex */
@@ -528,6 +532,12 @@ pre.hastips {
 
 .catalogue a {
     color: var(--wilton-color-white);
+}
+
+.code-block-tips,
+pre {
+    background-color: #1b222d;
+    padding-left: 0.5rem;
 }
 
 /* ========== for markdown-alert start ========== */

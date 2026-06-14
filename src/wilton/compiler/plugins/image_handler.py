@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 from typing import Sequence, TypedDict
+from urllib.parse import unquote
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
@@ -49,7 +50,7 @@ def _render_image(
         token.attrSet("onerror", f"this.onerror=null;this.src='{bronk_image_src}';")
         return renderer.image(tokens, idx, options, dict(env))
 
-    img_path = env["post_path"].parent / src
+    img_path = env["post_path"].parent / unquote(src)
     if not img_path.exists():
         logger.warning(f"image not exists: {img_path}")
         token.attrSet("src", bronk_image_src)

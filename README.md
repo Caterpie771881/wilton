@@ -46,6 +46,7 @@ uvx wilton --src="你的博客源码目录" --dist="输出目录"
 * 高亮文本
 * 脚注
 * 任务列表
+* kramdown 的 Attribute List 语法
 
 ### 搜索页
 

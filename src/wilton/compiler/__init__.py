@@ -2,6 +2,7 @@ from pathlib import Path
 
 from markdown_it import MarkdownIt
 from markdown_it.utils import EnvType
+from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.texmath import texmath_plugin
 from sqlalchemy import Engine
@@ -39,6 +40,8 @@ class MDCompiler:
             .use(mark_plugin)
             .use(table_container_plugin)
             .use(image_handler_plugin)
+            .use(attrs_plugin)
+            .use(attrs_block_plugin)
         )
 
         self.source_path = source_path
