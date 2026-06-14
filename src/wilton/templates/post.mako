@@ -8,10 +8,13 @@
     <div class="post-meta">
         <div class="post-title" data-pagefind-meta="title">${post.title}</div>
         <div>
-            <a class="link-style2" href="${website_address}${post.category.link}">${post.category.name}</a>
-            % for tag in post.tags:
-            <a class="tag" href="${website_address}${tag.link}">${tag.name}</a>
-            % endfor
+            ${(
+                f'<a class="link-style2" href="{website_address}{post.category.link}">{post.category.name}</a>'
+                + ''.join([
+                    f'&nbsp;<a class="tag" href="{website_address}{tag.link}">{tag.name}</a>'
+                    for tag in post.tags
+                ])
+            )}
         </div>
         <blockquote>
             <p>

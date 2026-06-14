@@ -26,7 +26,11 @@ class Post(SQLModel, table=True):
     category_id: int = Field(foreign_key="category.id")
     category: Category = Relationship(back_populates="posts")
 
-    tags: list[Tag] = Relationship(back_populates="posts", link_model=PostTagLink)
+    tags: list[Tag] = Relationship(
+        back_populates="posts",
+        link_model=PostTagLink,
+        sa_relationship_kwargs={"order_by": "Tag.name"},
+    )
 
     @cached_property
     def slug_filename(self) -> str:
