@@ -1,13 +1,26 @@
 # wilton
 
+![wilton.png](./docs/wilton.png)
+
 为撰写技术博客设计的终端风格的静态站点生成器
 
 访问量统计和评论区服务目前用的是腾讯的 EdgeOne, 之后会加入更多平台的支持
 
-> [!IMPORTANT]
-> 大部分代码是作者手搓的, 但请不要相信作者的代码质量比 VibeCoder 更好
->
-> 作者已经沉浸在自己的艺术中了, 能跑起来, 但请慎用
+## 使用方法
+
+### pip 安装
+
+```sh
+pip install wilton
+wilton --src="你的博客源码目录" --dist="输出目录"
+```
+
+### uv 安装
+
+```sh
+uv tool install wilton
+uvx wilton --src="你的博客源码目录" --dist="输出目录"
+```
 
 ## 部分外观展示
 
@@ -19,11 +32,19 @@
 
 ![img2](./docs/img2.png)
 
-![img3](./docs/img3.png)
+目前 wilton 支持所有 CommonMark 语法
+
+额外支持:
+
+* 表格
+* github alert 消息
+* latex 公式
+* 高亮文本
+* 脚注
 
 ### 搜索页
 
-![img4](./docs/img4.png)
+![img3](./docs/img3.png)
 
 ## 构建流程
 
@@ -52,9 +73,7 @@
 
 ## TODO
 
-现在该项目已经包含了最基本的功能了
-
-如有机会我可能会加入下面这些功能 (顺序不代表任务优先级)
+计划加入的功能 (顺序不代表优先级):
 
 - [ ] 构建缓存与增量编译
 - [ ] 切换颜色主题; 毕竟是终端风格, **理论上**用一个类似 Color Scheme 的机制就能实现这一点
@@ -62,5 +81,9 @@
   - [ ] cloudflare pages
   - [ ] vercel
   - [ ] 个人服务器, 基于 nginx + fastapi
-- [ ] mermaid 渲染
+- [ ] 支持 mermaid 图表
 - [ ] 完善的使用文档与二次开发文档
+- [ ] 并行化构建, 加快构建速度
+- [ ] i18n
+
+如有其他您期望的功能, 可以在 issue 中留言
