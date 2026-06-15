@@ -17,12 +17,14 @@ class PostMeta(BaseModel):
     title: str | None = None
     post_date: datetime
     tags: list[str] = []
+    draft: bool = False
 
 
 class PageMeta(BaseModel):
     """页面元数据"""
 
     title: str | None = None
+    draft: bool = False
 
 
 class Scanner:
@@ -79,6 +81,10 @@ class Scanner:
             post_meta = PostMeta.model_validate(post_meta)
         except ValidationError as e:
             logger.error(f"解析元数据失败, 失败原因: {e}")
+            return
+
+        if post_meta.draft:
+            logger.info(f"文章为草稿状态, 将跳过: {post_file}")
             return
 
         filename = post_file.name.removesuffix(".md")
@@ -148,6 +154,10 @@ class Scanner:
             page_meta = PageMeta.model_validate(page_meta)
         except ValidationError as e:
             logger.error(f"解析元数据失败, 失败原因: {e}")
+            return
+
+        if page_meta.draft:
+            logger.info(f"页面为草稿状态, 将跳过: {page_file}")
             return
 
         filename = page_file.name.removesuffix(".md")
