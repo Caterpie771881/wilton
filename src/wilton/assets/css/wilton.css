@@ -402,6 +402,10 @@ img.full {
     max-width: 100%;
 }
 
+img.small {
+    max-width: 30%;
+}
+
 /* for katex */
 .katex-html * {
     margin: auto;
