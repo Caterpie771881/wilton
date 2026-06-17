@@ -97,7 +97,6 @@ function addCodeBlockTips() {
         div_befor.innerHTML =
             "```" +
             `${language} <button class="button-style2 copy" data-clipboard-target="#copy${i}">${textCopy}</button>`;
-        div_befor.style.marginTop = "10px";
         div_befor.style.marginBottom = "0";
         pre.parentNode.insertBefore(div_befor, pre);
         // 代码块下方，插入 ``` 即可
@@ -105,7 +104,6 @@ function addCodeBlockTips() {
         div_after.className = "code-block-tips";
         div_after.innerText = "```";
         div_after.style.marginTop = "0";
-        div_after.style.marginBottom = "10px";
         pre.parentNode.insertBefore(div_after, pre.nextSibling);
         // 更新复制按钮编号
         i++;

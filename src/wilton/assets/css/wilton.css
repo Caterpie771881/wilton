@@ -36,7 +36,7 @@
 
 * {
     font-family: JetbrainsMono;
-    margin: 6px 0px 6px;
+    margin: 10px 0px;
     padding: 0;
 }
 
@@ -64,8 +64,8 @@ a:hover {
 h1 {
     color: var(--wilton-color-purple);
     font-size: var(--wilton-font-size-big);
-    margin-top: 12px;
-    margin-bottom: 12px;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 h1::before {
@@ -75,8 +75,8 @@ h1::before {
 h2 {
     color: var(--wilton-color-orange);
     font-size: var(--wilton-font-size-mid);
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
 
 h2::before {
@@ -267,6 +267,11 @@ code {
 code::before,
 code::after {
     content: "`";
+}
+
+p *,
+li * {
+    margin: 0px;
 }
 
 .table-container {
